@@ -87,3 +87,9 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# any subfolder
+*/
+
+# any zip files
+*.zip
