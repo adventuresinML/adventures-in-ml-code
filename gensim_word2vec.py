@@ -82,7 +82,7 @@ def gensim_demo():
 def create_embedding_matrix(model):
     # convert the wv word vectors into a numpy matrix that is suitable for insertion
     # into our TensorFlow and Keras models
-    embedding_matrix = np.zeros((len(model.wv.vocab) + 1, vector_dim))
+    embedding_matrix = np.zeros((len(model.wv.vocab), vector_dim))
     for i in range(len(model.wv.vocab)):
         embedding_vector = model.wv[model.wv.index2word[i]]
         if embedding_vector is not None:
@@ -166,7 +166,7 @@ def keras_model(embedding_matrix, wv):
         print(log_str)
 
 if __name__ == "__main__":
-    run_opt = 2
+    run_opt = 3
     if run_opt == 1:
         gensim_demo()
     elif run_opt == 2:
