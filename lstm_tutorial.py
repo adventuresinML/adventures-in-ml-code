@@ -194,11 +194,11 @@ def train(train_data, vocabulary, num_layers, num_epochs, batch_size, model_save
                     cost, _, current_state = sess.run([m.cost, m.train_op, m.state],
                                                       feed_dict={m.init_state: current_state})
                 else:
-                    seconds = ((dt.datetime.now() - curr_time).seconds / print_iter) * 1000
+                    seconds = (float((dt.datetime.now() - curr_time).seconds) / print_iter)
                     curr_time = dt.datetime.now()
                     cost, _, current_state, acc = sess.run([m.cost, m.train_op, m.state, m.accuracy],
                                                            feed_dict={m.init_state: current_state})
-                    print("Epoch {}, Step {}, cost: {:.3f}, accuracy: {:.3f}, millisec per step: {:.3f}".format(epoch,
+                    print("Epoch {}, Step {}, cost: {:.3f}, accuracy: {:.3f}, Seconds per step: {:.3f}".format(epoch,
                             step, cost, acc, seconds))
 
             # save a model checkpoint
