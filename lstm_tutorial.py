@@ -3,6 +3,7 @@ import numpy as np
 import collections
 import os
 import argparse
+import datetime as dt
 
 """To run this code, you'll need to first download and extract the text dataset
     from here: http://www.fit.vutbr.cz/~imikolov/rnnlm/simple-examples.tgz. Change the
@@ -167,7 +168,7 @@ class Model(object):
 
 
 def train(train_data, vocabulary, num_layers, num_epochs, batch_size, model_save_name,
-          learning_rate=1.0, max_lr_epoch=10, lr_decay=0.93):
+          learning_rate=1.0, max_lr_epoch=10, lr_decay=0.93, print_iter=50):
     # setup data and models
     training_input = Input(batch_size=batch_size, num_steps=35, data=train_data)
     m = Model(training_input, is_training=True, hidden_size=650, vocab_size=vocabulary,
@@ -186,15 +187,20 @@ def train(train_data, vocabulary, num_layers, num_epochs, batch_size, model_save
             # m.assign_lr(sess, learning_rate)
             # print(m.learning_rate.eval(), new_lr_decay)
             current_state = np.zeros((num_layers, 2, batch_size, m.hidden_size))
+            curr_time = dt.datetime.now()
             for step in range(training_input.epoch_size):
                 # cost, _ = sess.run([m.cost, m.optimizer])
-                if step % 50 != 0:
+                if step % print_iter != 0:
                     cost, _, current_state = sess.run([m.cost, m.train_op, m.state],
                                                       feed_dict={m.init_state: current_state})
                 else:
+                    seconds = ((dt.datetime.now() - curr_time).seconds / print_iter)
+                    curr_time = dt.datetime.now()
                     cost, _, current_state, acc = sess.run([m.cost, m.train_op, m.state, m.accuracy],
                                                            feed_dict={m.init_state: current_state})
-                    print("Epoch {}, Step {}, cost: {:.3f}, accuracy: {:.3f}".format(epoch, step, cost, acc))
+                    print("Epoch {}, Step {}, cost: {:.3f}, accuracy: {:.3f}, seconds per step: {:.3f}".format(epoch,
+                            step, cost, acc, seconds))
+
             # save a model checkpoint
             saver.save(sess, data_path + '\\' + model_save_name, global_step=epoch)
         # do a final save
