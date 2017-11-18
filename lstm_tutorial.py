@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import collections
 import os
+import argparse
 
 """To run this code, you'll need to first download and extract the text dataset
     from here: http://www.fit.vutbr.cz/~imikolov/rnnlm/simple-examples.tgz. Change the
@@ -9,6 +10,10 @@ import os
 
 data_path = "C:\\Users\Andy\Documents\simple-examples\data"
 
+parser = argparse.ArgumentParser()
+parser.add_argument('run_opt', type=int, default=1, help='An integer: 1 to train, 2 to test')
+parser.add_argument('--data_path', type=str, default=data_path, help='The full path of the training data')
+args = parser.parse_args()
 
 def read_words(filename):
     with tf.gfile.GFile(filename, "r") as f:
@@ -235,14 +240,13 @@ def test(model_path, test_data, reversed_dictionary):
         coord.join(threads)
 
 
-if __name__ == "__main__":
-    run_opt = 2
-    train_data, valid_data, test_data, vocabulary, reversed_dictionary = load_data()
-    if run_opt == 1:
-        train(train_data, vocabulary, num_layers=2, num_epochs=60, batch_size=20,
-              model_save_name='two-layer-lstm-medium-config-60-epoch-0p93-lr-decay-10-max-lr')
-    elif run_opt == 2:
-        trained_model = data_path + "\\two-layer-lstm-medium-config-60-epoch-0p93-lr-decay-10-max-lr-38"
-        test(trained_model, test_data, reversed_dictionary)
-
+if args.data_path:
+    data_path = args.data_path
+train_data, valid_data, test_data, vocabulary, reversed_dictionary = load_data()
+if args.run_opt == 1:
+    train(train_data, vocabulary, num_layers=2, num_epochs=60, batch_size=20,
+          model_save_name='two-layer-lstm-medium-config-60-epoch-0p93-lr-decay-10-max-lr')
+else:
+    trained_model = args.data_path + "\\two-layer-lstm-medium-config-60-epoch-0p93-lr-decay-10-max-lr-38"
+    test(trained_model, test_data, reversed_dictionary)
 
