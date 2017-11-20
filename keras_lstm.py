@@ -111,13 +111,13 @@ class KerasBatchGenerator(object):
                 self.current_idx += self.skip_step
             yield x, y
 
-num_steps = 40
+num_steps = 25
 target_size = 10
-batch_size = 50
+batch_size = 100
 train_data_generator = KerasBatchGenerator(train_data, num_steps, target_size, batch_size)
 valid_data_generator = KerasBatchGenerator(valid_data, num_steps, target_size, batch_size)
 
-hidden_layers = 500
+hidden_layers = 300
 
 model = Sequential()
 model.add(Embedding(vocabulary, hidden_layers, input_length=num_steps))
