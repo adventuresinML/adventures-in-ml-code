@@ -14,8 +14,8 @@ from __future__ import print_function
 import collections
 import os
 import tensorflow as tf
-from keras.models import Sequential
-from keras.layers import Dense, Activation, Embedding, Flatten
+from keras.models import Sequential, load_model
+from keras.layers import Dense, Activation, Embedding, Flatten, Dropout
 from keras.layers import LSTM
 from keras.optimizers import RMSprop, Adam
 from keras.preprocessing.text import one_hot
@@ -122,8 +122,9 @@ hidden_layers = 300
 model = Sequential()
 model.add(Embedding(vocabulary, hidden_layers, input_length=num_steps))
 model.add(LSTM(hidden_layers, return_sequences=True))
-model.add(LSTM(hidden_layers))
-# model.add(Flatten())
+model.add(LSTM(hidden_layers, return_sequences=True))
+model.add(Flatten())
+model.add(Dropout(0.2))
 model.add(Dense(target_size))
 model.add(Activation('softmax'))
 
@@ -134,10 +135,11 @@ model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['ac
 print(model.summary())
 
 num_epochs = 20
-# model.fit_generator(train_data_generator.generate(), len(train_data)//batch_size, num_epochs,
-#                     validation_data=valid_data_generator.generate(),
-#                     validation_steps=len(valid_data)//batch_size)
 
 model.fit_generator(train_data_generator.generate(), len(train_data)//batch_size, num_epochs,
                     validation_data=valid_data_generator.generate(),
                     validation_steps=len(valid_data)//batch_size)
+
+model.save(data_path + "model.h5")
+
+
