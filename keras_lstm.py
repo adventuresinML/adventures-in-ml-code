@@ -164,12 +164,12 @@ print(model.summary())
 
 num_epochs = 1
 if args.run_opt == 1:
-    # model.fit_generator(train_data_generator.generate(), len(train_data)//batch_size, num_epochs,
-    #                     validation_data=valid_data_generator.generate(),
-    #                     validation_steps=len(valid_data)//batch_size)
-    model.fit_generator(train_data_generator.generate(), 2000, num_epochs,
+    model.fit_generator(train_data_generator.generate(), len(train_data)//batch_size, num_epochs,
                         validation_data=valid_data_generator.generate(),
-                        validation_steps=10)
+                        validation_steps=len(valid_data)//batch_size)
+    # model.fit_generator(train_data_generator.generate(), 2000, num_epochs,
+    #                     validation_data=valid_data_generator.generate(),
+    #                     validation_steps=10)
     model.save(data_path + "model.h5")
 elif args.run_opt == 2:
     model = load_model(data_path + "model.h5")
