@@ -113,9 +113,12 @@ class KerasBatchGenerator(object):
 num_steps = 25
 target_size = 10
 batch_size = 20
-train_data_generator = KerasBatchGenerator(train_data, num_steps, target_size, batch_size, vocabulary)
-valid_data_generator = KerasBatchGenerator(valid_data, num_steps, target_size, batch_size, vocabulary)
-test_data_generator = KerasBatchGenerator(test_data, num_steps, target_size, batch_size, vocabulary)
+train_data_generator = KerasBatchGenerator(train_data, num_steps, target_size, batch_size, vocabulary,
+                                           skip_step=num_steps)
+valid_data_generator = KerasBatchGenerator(valid_data, num_steps, target_size, batch_size, vocabulary,
+                                           skip_step=num_steps)
+test_data_generator = KerasBatchGenerator(test_data, num_steps, target_size, batch_size, vocabulary,
+                                          skip_step=num_steps)
 
 hidden_layers = 300
 
@@ -147,11 +150,11 @@ model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['ca
 
 print(model.summary())
 
-num_epochs = 10
+num_epochs = 20
 if args.run_opt == 1:
-    model.fit_generator(train_data_generator.generate(), len(train_data)//batch_size, num_epochs,
+    model.fit_generator(train_data_generator.generate(), len(train_data)//(batch_size*num_steps), num_epochs,
                         validation_data=valid_data_generator.generate(),
-                        validation_steps=len(valid_data)//batch_size)
+                        validation_steps=len(valid_data)//(batch_size*num_steps))
     # model.fit_generator(train_data_generator.generate(), 2000, num_epochs,
     #                     validation_data=valid_data_generator.generate(),
     #                     validation_steps=10)
