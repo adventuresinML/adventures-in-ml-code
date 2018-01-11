@@ -144,8 +144,8 @@ def loss(y_true, y_pred, target_size=10):
 
 
 # optimizer = RMSprop(lr=0.001)
-optimizer = SGD(lr=1.0)
-# optimizer = Adam()
+# optimizer = SGD(lr=1.0)
+optimizer = Adam()
 model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['categorical_accuracy'])
 
 print(model.summary())
