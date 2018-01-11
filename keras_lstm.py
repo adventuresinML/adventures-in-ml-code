@@ -110,7 +110,7 @@ class KerasBatchGenerator(object):
                 self.current_idx += self.skip_step
             yield x, y
 
-num_steps = 25
+num_steps = 15
 target_size = 5
 batch_size = 20
 train_data_generator = KerasBatchGenerator(train_data, num_steps, target_size, batch_size, vocabulary,
@@ -126,7 +126,7 @@ model = Sequential()
 model.add(Embedding(vocabulary, hidden_layers, input_length=num_steps))
 model.add(LSTM(hidden_layers, return_sequences=True))
 # model.add(LSTM(hidden_layers, return_sequences=True))
-# model.add(Dropout(0.2))
+model.add(Dropout(0.2))
 model.add(Reshape((target_size, -1)))
 model.add(TimeDistributed(Dense(vocabulary)))
 model.add(Activation('softmax'))
