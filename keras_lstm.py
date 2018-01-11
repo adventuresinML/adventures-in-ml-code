@@ -125,7 +125,7 @@ hidden_layers = 300
 model = Sequential()
 model.add(Embedding(vocabulary, hidden_layers, input_length=num_steps))
 model.add(LSTM(hidden_layers, return_sequences=True))
-model.add(LSTM(hidden_layers, return_sequences=True))
+# model.add(LSTM(hidden_layers, return_sequences=True))
 # model.add(Dropout(0.2))
 model.add(Reshape((target_size, -1)))
 model.add(TimeDistributed(Dense(vocabulary)))
