@@ -150,7 +150,7 @@ model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['ca
 
 print(model.summary())
 
-num_epochs = 20
+num_epochs = 50
 if args.run_opt == 1:
     model.fit_generator(train_data_generator.generate(), len(train_data)//(batch_size*num_steps), num_epochs,
                         validation_data=valid_data_generator.generate(),
