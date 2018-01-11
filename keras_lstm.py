@@ -111,7 +111,7 @@ class KerasBatchGenerator(object):
             yield x, y
 
 num_steps = 25
-target_size = 10
+target_size = 5
 batch_size = 20
 train_data_generator = KerasBatchGenerator(train_data, num_steps, target_size, batch_size, vocabulary,
                                            skip_step=num_steps)
