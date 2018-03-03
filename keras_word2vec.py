@@ -4,7 +4,7 @@ from keras.layers.embeddings import Embedding
 from keras.preprocessing.sequence import skipgrams
 from keras.preprocessing import sequence
 
-import urllib.request
+import urllib
 import collections
 import os
 import zipfile
@@ -15,7 +15,7 @@ import tensorflow as tf
 def maybe_download(filename, url, expected_bytes):
     """Download a file if not present, and make sure it's the right size."""
     if not os.path.exists(filename):
-        filename, _ = urllib.request.urlretrieve(url + filename, filename)
+        filename, _ = urllib.urlretrieve(url + filename, filename)
     statinfo = os.stat(filename)
     if statinfo.st_size == expected_bytes:
         print('Found and verified', filename)
