@@ -166,7 +166,7 @@ def keras_model(embedding_matrix, wv):
         print(log_str)
 
 if __name__ == "__main__":
-    run_opt = 3
+    run_opt = 2
     if run_opt == 1:
         gensim_demo()
     elif run_opt == 2:
