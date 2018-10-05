@@ -8,7 +8,6 @@ def get_batch(x_data, y_data, batch_size):
     idxs = np.random.randint(0, len(y_data), batch_size)
     return x_data[idxs,:,:], y_data[idxs]
 
-
 def nn_example():
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
 

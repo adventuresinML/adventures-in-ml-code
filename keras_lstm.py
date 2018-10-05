@@ -3,15 +3,13 @@ import collections
 import os
 import tensorflow as tf
 from keras.models import Sequential, load_model
-from keras.layers import Dense, Activation, Embedding, Flatten, Dropout, TimeDistributed, Reshape, Lambda
+from keras.layers import Dense, Activation, Embedding, Dropout, TimeDistributed
 from keras.layers import LSTM
-from keras.optimizers import RMSprop, Adam, SGD
-from keras import backend as K
+from keras.optimizers import Adam
 from keras.utils import to_categorical
 from keras.callbacks import ModelCheckpoint
 import numpy as np
 import argparse
-import pdb
 
 """To run this code, you'll need to first download and extract the text dataset
     from here: http://www.fit.vutbr.cz/~imikolov/rnnlm/simple-examples.tgz. Change the
