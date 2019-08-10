@@ -17,7 +17,7 @@ parser.add_argument('--data_path', type=str, default=data_path, help='The full p
 args = parser.parse_args()
 
 def read_words(filename):
-    with tf.gfile.GFile(filename, "r") as f:
+    with tf.gfile.GFile(filename, "rb") as f:
         return f.read().decode("utf-8").replace("\n", "<eos>").split()
 
 
