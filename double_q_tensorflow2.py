@@ -55,7 +55,7 @@ class Memory:
         return len(self._samples)
 
 
-memory = Memory(50000)
+memory = Memory(500000)
 
 
 def choose_action(state, primary_network, eps):
