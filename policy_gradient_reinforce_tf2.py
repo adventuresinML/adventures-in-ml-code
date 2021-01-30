@@ -24,7 +24,7 @@ def get_action(network, state, num_actions):
     return selected_action
 
 
-def update_network(network, rewards, states, actions, num_actions):
+def update_network(network, rewards, states):
     reward_sum = 0
     discounted_rewards = []
     for reward in rewards[::-1]:  # reverse buffer r
@@ -55,7 +55,7 @@ for episode in range(num_episodes):
         actions.append(action)
 
         if done:
-            loss = update_network(network, rewards, states, actions, num_actions)
+            loss = update_network(network, rewards, states)
             tot_reward = sum(rewards)
             print(f"Episode: {episode}, Reward: {tot_reward}, avg loss: {loss:.5f}")
             with train_writer.as_default():
