@@ -18,6 +18,7 @@ network = keras.Sequential([
 ])
 network.compile(loss='categorical_crossentropy',optimizer=keras.optimizers.Adam())
 
+
 def get_action(network, state, num_actions):
     softmax_out = network(state.reshape((1, -1)))
     selected_action = np.random.choice(num_actions, p=softmax_out.numpy()[0])

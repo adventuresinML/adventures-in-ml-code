@@ -1,62 +1,13 @@
 import tensorflow as tf
 import numpy as np
-from tensorflow.examples.tutorials.mnist import input_data
+import datetime as dt
+from tensorflow.keras.datasets import mnist
 
+STORE_PATH = '/Users/andrewthomas/Adventures in ML/TensorBoard'
 
 def run_simple_graph():
-    # first, create a TensorFlow constant
-    const = tf.constant(2.0, name="const")
-
     # create TensorFlow variables
-    b = tf.Variable(2.0, name='b')
-    c = tf.Variable(1.0, name='c')
-
-    # now create some operations
-    d = tf.add(b, c, name='d')
-    e = tf.add(c, 2, name='e')
-    a = tf.multiply(d, e, name='a')
-
-    # setup the variable initialisation
-    init_op = tf.global_variables_initializer()
-
-    # start the session
-    with tf.Session() as sess:
-        # initialise the variables
-        sess.run(init_op)
-        # compute the output of the graph
-        a_out = sess.run(a)
-        print("Variable a is {}".format(a_out))
-
-
-def run_simple_graph_multiple():
-    # first, create a TensorFlow constant
-    const = tf.constant(2.0, name="const")
-
-    # create TensorFlow variables
-    b = tf.placeholder(tf.float32, [None, 1], name='b')
-    c = tf.Variable(1.0, name='c')
-
-    # now create some operations
-    d = tf.add(b, c, name='d')
-    e = tf.add(c, 2, name='e')
-    a = tf.multiply(d, e, name='a')
-
-    # setup the variable initialisation
-    init_op = tf.global_variables_initializer()
-
-    # start the session
-    with tf.Session() as sess:
-        # initialise the variables
-        sess.run(init_op)
-        # compute the output of the graph
-        a_out = sess.run(a, feed_dict={b: np.arange(0, 10)[:, np.newaxis]})
-        print("Variable a is {}".format(a_out))
-
-
-def simple_with_tensor_board():
-    const = tf.constant(2.0, name="const")
-
-    # Create TensorFlow variables
+    const = tf.Variable(2.0, name="const")
     b = tf.Variable(2.0, name='b')
     c = tf.Variable(1.0, name='c')
 
@@ -65,90 +16,117 @@ def simple_with_tensor_board():
     e = tf.add(c, const, name='e')
     a = tf.multiply(d, e, name='a')
 
-    # setup the variable initialisation
-    init_op = tf.global_variables_initializer()
+    # alternatively (and more naturally)
+    d = b + c
+    e = c + 2
+    a = d * e
 
-    # start the session
-    with tf.Session() as sess:
-        # initialise the variables
-        sess.run(init_op)
-        # compute the output of the graph
-        a_out = sess.run(a)
-        print("Variable a is {}".format(a_out))
-        train_writer = tf.summary.FileWriter('C:\\Users\\Andy\\PycharmProjects')
-        train_writer.add_graph(sess.graph)
+    print(f"Variable a is {a.numpy()}")
+
+
+def run_simple_graph_multiple():
+    const = tf.Variable(2.0, name="const")
+    b = tf.Variable(np.arange(0, 10), name='b')
+    c = tf.Variable(1.0, name='c')
+
+    d = tf.cast(b, tf.float32) + c
+    e = c + const
+    a = d * e
+
+    print(f"Variable a is {a.numpy()}")
+
+    # the line below would cause an error - tensors are immutable
+    # b[1] = 10
+
+    # need to use assignment instead
+    b[1].assign(10)
+    d = tf.cast(b, tf.float32) + c
+    e = c + const
+    a = d * e
+    print(f"Variable a is {a.numpy()}")
+
+    b[6:9].assign([10, 10, 10])
+    f = b[2:5]
+    print(f.numpy())
+
+
+def get_batch(x_data, y_data, batch_size):
+    idxs = np.random.randint(0, len(y_data), batch_size)
+    return x_data[idxs,:,:], y_data[idxs]
+
+
+def nn_model(x_input, W1, b1, W2, b2):
+    # flatten the input image from 28 x 28 to 784
+    x_input = tf.reshape(x_input, (x_input.shape[0], -1))
+    x = tf.add(tf.matmul(tf.cast(x_input, tf.float32), W1), b1)
+    x = tf.nn.relu(x)
+    logits = tf.add(tf.matmul(x, W2), b2)
+    return logits
+
+
+def loss_fn(logits, labels):
+    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=labels,
+                                                                              logits=logits))
+    return cross_entropy
 
 
 def nn_example():
-    mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
     # Python optimisation variables
-    learning_rate = 0.5
     epochs = 10
     batch_size = 100
 
-    # declare the training data placeholders
-    # input x - for 28 x 28 pixels = 784
-    x = tf.placeholder(tf.float32, [None, 784])
-    # now declare the output data placeholder - 10 digits
-    y = tf.placeholder(tf.float32, [None, 10])
+    # normalize the input images by dividing by 255.0
+    x_train = x_train / 255.0
+    x_test = x_test / 255.0
+    # convert x_test to tensor to pass through model (train data will be converted to
+    # tensors on the fly)
+    x_test = tf.Variable(x_test)
 
     # now declare the weights connecting the input to the hidden layer
-    W1 = tf.Variable(tf.random_normal([784, 300], stddev=0.03), name='W1')
-    b1 = tf.Variable(tf.random_normal([300]), name='b1')
+    W1 = tf.Variable(tf.random.normal([784, 300], stddev=0.03), name='W1')
+    b1 = tf.Variable(tf.random.normal([300]), name='b1')
     # and the weights connecting the hidden layer to the output layer
-    W2 = tf.Variable(tf.random_normal([300, 10], stddev=0.03), name='W2')
-    b2 = tf.Variable(tf.random_normal([10]), name='b2')
+    W2 = tf.Variable(tf.random.normal([300, 10], stddev=0.03), name='W2')
+    b2 = tf.Variable(tf.random.normal([10]), name='b2')
 
-    # calculate the output of the hidden layer
-    hidden_out = tf.add(tf.matmul(x, W1), b1)
-    hidden_out = tf.nn.relu(hidden_out)
+    # setup the optimizer
+    optimizer = tf.keras.optimizers.Adam()
 
-    # now calculate the hidden layer output - in this case, let's use a softmax activated
-    # output layer
-    y_ = tf.nn.softmax(tf.add(tf.matmul(hidden_out, W2), b2))
+    # create a summary writer to view loss in TensorBoard
+    train_summary_writer = tf.summary.create_file_writer(STORE_PATH +
+                                                         "/TensorFlow_Intro_Chapter_" +
+                                                         f"{dt.datetime.now().strftime('%d%m%Y%H%M')}")
 
-    # now let's define the cost function which we are going to train the model on
-    y_clipped = tf.clip_by_value(y_, 1e-10, 0.9999999)
-    cross_entropy = -tf.reduce_mean(tf.reduce_sum(y * tf.log(y_clipped)
-                                                  + (1 - y) * tf.log(1 - y_clipped), axis=1))
+    total_batch = int(len(y_train) / batch_size)
+    for epoch in range(epochs):
+        avg_loss = 0
+        for i in range(total_batch):
+            batch_x, batch_y = get_batch(x_train, y_train, batch_size=batch_size)
+            # create tensors
+            batch_x = tf.Variable(batch_x)
+            batch_y = tf.Variable(batch_y)
+            # create a one hot vector
+            batch_y = tf.one_hot(batch_y, 10)
+            with tf.GradientTape() as tape:
+                logits = nn_model(batch_x, W1, b1, W2, b2)
+                loss = loss_fn(logits, batch_y)
+            gradients = tape.gradient(loss, [W1, b1, W2, b2])
+            optimizer.apply_gradients(zip(gradients, [W1, b1, W2, b2]))
+            avg_loss += loss / total_batch
+        test_logits = nn_model(x_test, W1, b1, W2, b2)
+        max_idxs = tf.argmax(test_logits, axis=1)
+        test_acc = np.sum(max_idxs.numpy() == y_test) / len(y_test)
+        print(f"Epoch: {epoch + 1}, loss={avg_loss:.3f}, test set accuracy={test_acc*100:.3f}%")
+        with train_summary_writer.as_default():
+            tf.summary.scalar('loss', avg_loss, step=epoch)
+            tf.summary.scalar('accuracy', test_acc, step=epoch)
 
-    # add an optimiser
-    optimiser = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(cross_entropy)
 
-    # finally setup the initialisation operator
-    init_op = tf.global_variables_initializer()
-
-    # define an accuracy assessment operation
-    correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
-    # add a summary to store the accuracy
-    tf.summary.scalar('accuracy', accuracy)
-
-    merged = tf.summary.merge_all()
-    writer = tf.summary.FileWriter('C:\\Users\\Andy\\PycharmProjects')
-    # start the session
-    with tf.Session() as sess:
-        # initialise the variables
-        sess.run(init_op)
-        total_batch = int(len(mnist.train.labels) / batch_size)
-        for epoch in range(epochs):
-            avg_cost = 0
-            for i in range(total_batch):
-                batch_x, batch_y = mnist.train.next_batch(batch_size=batch_size)
-                _, c = sess.run([optimiser, cross_entropy], feed_dict={x: batch_x, y: batch_y})
-                avg_cost += c / total_batch
-            print("Epoch:", (epoch + 1), "cost =", "{:.3f}".format(avg_cost))
-            summary = sess.run(merged, feed_dict={x: mnist.test.images, y: mnist.test.labels})
-            writer.add_summary(summary, epoch)
-
-        print("\nTraining complete!")
-        writer.add_graph(sess.graph)
-        print(sess.run(accuracy, feed_dict={x: mnist.test.images, y: mnist.test.labels}))
+    print("\nTraining complete!")
 
 if __name__ == "__main__":
-    run_simple_graph()
+    # run_simple_graph()
     # run_simple_graph_multiple()
-    # simple_with_tensor_board()
-    # nn_example()
+    nn_example()
